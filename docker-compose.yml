@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  remix-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: remix-app
+    ports:
+      - "5173:5173" # Expose Remix app on port 5173
+    env_file:
+      - .env # Load environment variables from .env file
+    volumes:
+      - .:/app # Sync local files for development
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - db # Ensure PostgreSQL starts before the app
+
+  db:
+    image: postgres:15-alpine # Use PostgreSQL as the database
+    container_name: remix-postgres
+    env_file:
+      - .env # Load database-related environment variables from .env file
+    ports:
+      - "5432:5432" # Expose PostgreSQL on port 5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data: # Persistent storage for database
